@@ -1,0 +1,58 @@
+<%- | 
+  String $domain,
+  Array[String] $networks,
+  Array[String] $forwarders,
+  Hash $zones
+| -%>
+// Named configuration file for <%= $domain %>
+// Managed by Puppet - DO NOT EDIT
+
+options {
+  listen-on port 53 { any; };
+  listen-on-v6 port 53 { ::1; };
+  
+  directory "/var/named";
+  dump-file "/var/named/data/cache_dump.db";
+  statistics-file "/var/named/data/named_stats.txt";
+  memstatistics-file "/var/named/data/named_mem_stats.txt";
+  
+  recursion yes;
+  allow-query { localhost; 
+<% $networks.each |$network| { -%>
+    <%= $network %>; 
+<% } -%>
+  };
+
+  forwarders {
+<% $forwarders.each |$forwarder| { -%>
+    <%= $forwarder %>; 
+<% } -%>
+  };
+
+  dnssec-enable yes;
+  dnssec-validation yes;
+
+  managed-keys-directory "/var/named/dynamic";
+  pid-file "/run/named/named.pid";
+  session-keyfile "/run/named/session.key";
+};
+
+logging {
+  channel default_debug {
+    file "data/named.run";
+    severity dynamic;
+  };
+};
+
+// Zone definitions
+<% $zones.each |$zone_name, $zone_data| { -%>
+zone "<%= $zone_name %>" IN {
+  type <%= $zone_data['type'] %>;
+  file "/etc/named/<%= $zone_name %>.zone";
+<% if $zone_data['type'] == 'slave' { -%>
+  masters { <%= $zone_data['master'] %>; };
+<% } -%>
+  allow-update { none; };
+};
+
+<% } -%> 

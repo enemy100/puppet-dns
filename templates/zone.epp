@@ -1,0 +1,42 @@
+<%- | 
+  String $zone_name,
+  Hash $zone_data
+| -%>
+; Zone file for <%= $zone_name %>
+; Managed by Puppet - DO NOT EDIT
+
+$TTL <%= $zone_data['ttl'] %>
+
+@ IN SOA <%= $zone_data['nameserver'] %>. <%= $zone_data['email'] %>. (
+      <%= $zone_data['serial'] %> ; Serial
+      <%= $zone_data['refresh'] %> ; Refresh
+      <%= $zone_data['retry'] %>   ; Retry
+      <%= $zone_data['expire'] %>  ; Expire
+      <%= $zone_data['minimum'] %> ; Minimum TTL
+)
+
+; Name servers
+<% $zone_data['ns_records'].each |$ns| { -%>
+@     IN NS     <%= $ns %>.
+<% } -%>
+
+; A records
+<% if $zone_data['a_records'] { -%>
+<% $zone_data['a_records'].each |$name, $ip| { -%>
+<%= $name %>     IN A     <%= $ip %>
+<% } -%>
+<% } -%>
+
+; CNAME records
+<% if $zone_data['cname_records'] { -%>
+<% $zone_data['cname_records'].each |$alias, $canonical| { -%>
+<%= $alias %>     IN CNAME     <%= $canonical %>
+<% } -%>
+<% } -%>
+
+; MX records
+<% if $zone_data['mx_records'] { -%>
+<% $zone_data['mx_records'].each |$priority, $server| { -%>
+@     IN MX     <%= $priority %> <%= $server %>.
+<% } -%>
+<% } -%> 

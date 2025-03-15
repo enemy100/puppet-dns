@@ -1,0 +1,51 @@
+---
+dns:
+  domain: 'example.com'
+  networks:
+    - '192.168.1.0/24'
+    - '192.168.2.0/24'
+  forwarders:
+    - '8.8.8.8'
+    - '8.8.4.4'
+  zones:
+    'example.com':
+      type: 'master'
+      ttl: '86400'
+      nameserver: 'ns1.example.com'
+      email: 'admin.example.com'
+      serial: '2023010101'
+      refresh: '3600'
+      retry: '1800'
+      expire: '604800'
+      minimum: '86400'
+      ns_records:
+        - 'ns1.example.com'
+        - 'ns2.example.com'
+      a_records:
+        '@': '192.168.1.10'
+        'ns1': '192.168.1.10'
+        'ns2': '192.168.1.11'
+        'www': '192.168.1.20'
+        'mail': '192.168.1.30'
+      cname_records:
+        'ftp': 'www'
+      mx_records:
+        '10': 'mail'
+    '1.168.192.in-addr.arpa':
+      type: 'master'
+      ttl: '86400'
+      nameserver: 'ns1.example.com'
+      email: 'admin.example.com'
+      serial: '2023010101'
+      refresh: '3600'
+      retry: '1800'
+      expire: '604800'
+      minimum: '86400'
+      ns_records:
+        - 'ns1.example.com'
+        - 'ns2.example.com'
+      ptr_records:
+        '10': 'ns1.example.com.'
+        '11': 'ns2.example.com.'
+        '20': 'www.example.com.'
+        '30': 'mail.example.com.' 
